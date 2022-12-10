@@ -21,3 +21,17 @@ func IntMin(nums ...int) int {
 	}
 	return min
 }
+
+func IntAbs(x int) int {
+	if x < 0 {
+		return -x
+	}
+	return x
+}
+
+func IntSign(x int) int {
+	if x >= 0 {
+		return 1
+	}
+	return -1
+}
