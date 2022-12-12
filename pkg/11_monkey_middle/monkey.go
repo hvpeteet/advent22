@@ -20,7 +20,7 @@ func (m *Monkey) ApplyOperation(old int) (int, error) {
 		return 0, fmt.Errorf("%s did not have exactly 6 elements divided by spaces", m.Operation)
 	}
 
-	operator := pieces[3]
+	operator := pieces[4]
 
 	var operand1, operand2 int
 	var err error
@@ -31,7 +31,7 @@ func (m *Monkey) ApplyOperation(old int) (int, error) {
 	}
 
 	if pieces[5] == "old" {
-		operand1 = old
+		operand2 = old
 	} else if operand2, err = strconv.Atoi(pieces[5]); err != nil {
 		return 0, err
 	}
