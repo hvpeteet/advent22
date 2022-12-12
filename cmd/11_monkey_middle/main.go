@@ -37,7 +37,7 @@ func monkeyBuisness(monkeys []*mky.Monkey) int {
 				if adjustedWorry, err := monkey.ApplyOperation(worry); err != nil {
 					panic(err)
 				} else {
-					// adjustedWorry = adjustedWorry / 3
+					adjustedWorry = adjustedWorry / 3
 					targetMonkey := monkey.FalseTarget
 					if adjustedWorry%monkey.TestDivsibleBy == 0 {
 						targetMonkey = monkey.TrueTarget
