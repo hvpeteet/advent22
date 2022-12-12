@@ -13,6 +13,7 @@ import (
 )
 
 var fileFlag = flag.String("file", "", "file to parse")
+var part1Flag = flag.Bool("part1", true, "If running with rules for pt1 (div by 3)")
 
 func parseMonkeyNote(lines []string) (*mky.Monkey, error) {
 	if len(lines) != 6 {
@@ -35,13 +36,20 @@ func monkeyBuisness(monkeys []*mky.Monkey) int {
 	}
 	itemsInspected := make([]int, len(monkeys))
 	fmt.Print("------\n\n")
-	for round := 0; round < 20; round++ {
+	rounds := 10000
+	if *part1Flag {
+		rounds = 20
+	}
+	for round := 0; round < rounds; round++ {
 		for monkey_i, monkey := range monkeys {
 			for _, worry := range monkey.Items {
 				if adjustedWorry, err := monkey.ApplyOperation(worry); err != nil {
 					panic(err)
 				} else {
-					adjustedWorry = (adjustedWorry / 3) % multDivisBy
+					if *part1Flag {
+						adjustedWorry = adjustedWorry / 3
+					}
+					adjustedWorry %= multDivisBy
 					targetMonkey := monkey.FalseTarget
 					if adjustedWorry%monkey.TestDivsibleBy == 0 {
 						targetMonkey = monkey.TrueTarget
