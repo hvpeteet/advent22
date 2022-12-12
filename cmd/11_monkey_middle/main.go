@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
+	"math/big"
 	"os"
 	"sort"
 	"strings"
@@ -19,43 +20,51 @@ func parseMonkeyNote(lines []string) (*mky.Monkey, error) {
 		return nil, fmt.Errorf("'%v' is not properly formatted", lines)
 	}
 	m := mky.Monkey{}
-	m.Items = parse.AllInts(strings.Replace(lines[1], ",", "", -1))
+	for _, x := range parse.AllInts(strings.Replace(lines[1], ",", "", -1)) {
+		m.Items = append(m.Items, big.NewInt(int64(x)))
+	}
 	m.Operation = lines[2]
-	m.TestDivsibleBy = parse.AllInts(lines[3])[0] // TODO: Check for empty array
-	m.TrueTarget = parse.AllInts(lines[4])[0]     // TODO: Check for empty array
-	m.FalseTarget = parse.AllInts(lines[5])[0]    // TODO: Check for empty array
+	m.TestDivsibleBy = big.NewInt(int64(parse.AllInts(lines[3])[0])) // TODO: Check for empty array
+	m.TrueTarget = parse.AllInts(lines[4])[0]                        // TODO: Check for empty array
+	m.FalseTarget = parse.AllInts(lines[5])[0]                       // TODO: Check for empty array
 	return &m, nil
 
 }
 
-func monkeyBuisness(monkeys []*mky.Monkey) int {
-	itemsInspected := make([]int, len(monkeys))
-	fmt.Print("------\n\n")
-	for round := 0; round < 20; round++ {
+func monkeyBuisness(monkeys []*mky.Monkey) int64 {
+	itemsInspected := make([]int64, len(monkeys))
+	// fmt.Print("------\n\n")
+	for round := 0; round < 10000; round++ {
 		for monkey_i, monkey := range monkeys {
 			for _, worry := range monkey.Items {
 				if adjustedWorry, err := monkey.ApplyOperation(worry); err != nil {
 					panic(err)
 				} else {
-					// adjustedWorry = adjustedWorry / 3
+					// adjustedWorry.Div(adjustedWorry, big.NewInt(3))
 					targetMonkey := monkey.FalseTarget
-					if adjustedWorry%monkey.TestDivsibleBy == 0 {
+					if big.NewInt(0).Mod(adjustedWorry, monkey.TestDivsibleBy).CmpAbs(big.NewInt(0)) == 0 {
 						targetMonkey = monkey.TrueTarget
 					}
-					fmt.Printf("Throwing item with worry %d to monkey %d\n", adjustedWorry, targetMonkey)
+					// fmt.Printf("Throwing item with worry %d to monkey %d\n", adjustedWorry, targetMonkey)
 					monkeys[targetMonkey].Items = append(monkeys[targetMonkey].Items, adjustedWorry)
 				}
 				itemsInspected[monkey_i]++
 			}
-			monkey.Items = []int{}
+			monkey.Items = []*big.Int{}
 		}
-		for _, m := range monkeys {
-			fmt.Printf("%+v\n", m)
+		// for _, m := range monkeys {
+		// 	fmt.Printf("%+v\n", m)
+		// }
+		// fmt.Print("------\n\n")
+		if round%500 == 0 {
+			fmt.Printf("%d\n", round)
+			for _, m := range monkeys {
+				fmt.Printf("%+v\n", m)
+			}
 		}
-		fmt.Print("------\n\n")
 	}
-	sort.Sort(sort.Reverse(sort.IntSlice(itemsInspected)))
-	return itemsInspected[0] * itemsInspected[1]
+	sort.Slice(itemsInspected, func(i, j int) bool { return itemsInspected[i] < itemsInspected[j] })
+	return itemsInspected[len(itemsInspected)-1] * itemsInspected[len(itemsInspected)-2]
 }
 
 func main() {
