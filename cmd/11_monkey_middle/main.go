@@ -29,6 +29,10 @@ func parseMonkeyNote(lines []string) (*mky.Monkey, error) {
 }
 
 func monkeyBuisness(monkeys []*mky.Monkey) int {
+	multDivisBy := 1
+	for _, m := range monkeys {
+		multDivisBy *= m.TestDivsibleBy
+	}
 	itemsInspected := make([]int, len(monkeys))
 	fmt.Print("------\n\n")
 	for round := 0; round < 20; round++ {
@@ -37,7 +41,7 @@ func monkeyBuisness(monkeys []*mky.Monkey) int {
 				if adjustedWorry, err := monkey.ApplyOperation(worry); err != nil {
 					panic(err)
 				} else {
-					adjustedWorry = adjustedWorry / 3
+					adjustedWorry = (adjustedWorry / 3) % multDivisBy
 					targetMonkey := monkey.FalseTarget
 					if adjustedWorry%monkey.TestDivsibleBy == 0 {
 						targetMonkey = monkey.TrueTarget
